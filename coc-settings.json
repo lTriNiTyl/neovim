@@ -1,0 +1,129 @@
+{
+  "codeLens.enable": true,
+  "diagnostic.errorSign": "✖",
+  "diagnostic.hintSign": "➤",
+  "diagnostic.infoSign": "ℹ",
+  "diagnostic.warningSign": "⚠",
+  "eslint.autoFixOnSave": true,
+  "languageserver": {
+    "ccls": {
+      "command": "ccls",
+      "filetypes": [
+        "c",
+        "cpp",
+        "objc",
+        "objcpp"
+      ],
+      "initializationOptions": {
+        "cache": {
+          "directory": "/tmp/ccls"
+        }
+      },
+      "rootPatterns": [
+        ".ccls",
+        ".git/",
+        ".hg/",
+        ".vim/",
+        "compile_commands.json"
+      ]
+    },
+    "golang": {
+      "command": "gopls",
+      "filetypes": [
+        "go"
+      ],
+      "rootPatterns": [
+        ".git/",
+        ".hg/",
+        ".vim/",
+        "go.mod"
+      ]
+    },
+    "python": {
+      "args": [
+        "--log-file",
+        "-mpyls",
+        "-vv",
+        "/tmp/lsp_python.log"
+      ],
+      "command": "python",
+      "filetypes": [
+        "python"
+      ],
+      "settings": {
+        "pyls": {
+          "commandPath": "",
+          "configurationSources": [
+            "pycodestyle"
+          ],
+          "enable": true,
+          "plugins": {
+            "jedi_completion": {
+              "enabled": true
+            },
+            "jedi_hover": {
+              "enabled": true
+            },
+            "jedi_references": {
+              "enabled": true
+            },
+            "jedi_signature_help": {
+              "enabled": true
+            },
+            "jedi_symbols": {
+              "all_scopes": true,
+              "enabled": true
+            },
+            "mccabe": {
+              "enabled": true,
+              "threshold": 15
+            },
+            "preload": {
+              "enabled": true
+            },
+            "pycodestyle": {
+              "enabled": true
+            },
+            "pydocstyle": {
+              "enabled": false,
+              "match": "(?!test_).*\\.py",
+              "matchDir": "[^\\.].*"
+            },
+            "pyflakes": {
+              "enabled": true
+            },
+            "rope_completion": {
+              "enabled": true
+            },
+            "yapf": {
+              "enabled": true
+            }
+          },
+          "trace": {
+            "server": "verbose"
+          }
+        }
+      },
+      "trace.server": "verbose"
+    }
+  },
+  "python.jediEnabled": false,
+  "python.linting.pylintArgs": [
+    "--load-plugins",
+    "pylint_django"
+  ],
+  "python.linting.pylintEnabled": true,
+  "python.venvFolders": [
+    ".direnv",
+    ".pyenv",
+    "envs",
+    "~/.cache/pypoetry/virtualenvs",
+    "~/.local/share/virtualenvs"
+  ],
+  "python.workspaceSymbols.exclusionPatterns": [],
+  "signature.enable": true,
+  "suggest.echodocSupport": true,
+  "suggest.noselect": false,
+  "suggest.preferCompleteThanJumpPlaceholder": true,
+  "tsserver.implicitProjectConfig.experimentalDecorators": true
+}
