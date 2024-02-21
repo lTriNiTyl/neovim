@@ -6,6 +6,7 @@ return {
     'hrsh7th/nvim-cmp',
     event = "InsertEnter",
     dependencies = {
+      "Exafunction/codeium.nvim",
       "hrsh7th/cmp-buffer",
       "hrsh7th/cmp-path",
       "L3MON4D3/LuaSnip",
@@ -42,6 +43,7 @@ return {
           ['<CR>'] = cmp.mapping.confirm({ select = true }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
         }),
         sources = cmp.config.sources({
+          { name = 'codeium' },
           { name = 'nvim_lsp' },
           --{ name = 'vsnip' }, -- For vsnip users.
           { name = 'luasnip' }, -- For luasnip users.

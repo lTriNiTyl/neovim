@@ -1,19 +1,16 @@
 return {
   {
-    "zbirenbaum/copilot.lua",
-    cmd = "Copilot",
-    event = "InsertEnter",
-    config = function()
-      require("copilot").setup({})
-    end
+    --"github/copilot.vim",
   },
   {
-    "zbirenbaum/copilot-cmp",
+    "Exafunction/codeium.nvim",
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      "hrsh7th/nvim-cmp",
+    },
+    event = 'BufEnter',
     config = function()
-      require("copilot_cmp").setup()
+      require('codeium').setup({})
     end
-  },
-  {
-    'AndreM222/copilot-lualine',
   },
 }
