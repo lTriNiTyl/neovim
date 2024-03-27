@@ -33,6 +33,8 @@ opt.swapfile = false
 -- cursor line
 opt.cursorline = true
 
+opt.clipboard = "unnamedplus"
+
 vim.g.mapleader = " "
 
 local opts = { noremap = true, silent = true }
