@@ -13,4 +13,8 @@ return {
       require('codeium').setup({})
     end
   },
+  {
+    'AndreM222/copilot-lualine',
+    show_colors = true,
+  },
 }
