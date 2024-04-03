@@ -14,7 +14,7 @@ opt.wrap = false
 
 -- search settings
 opt.ignorecase = true
-opt. smartcase = true
+opt.smartcase = true
 
 -- appearance
 
@@ -22,7 +22,7 @@ opt. smartcase = true
 -- (have to use iterm2 or any other true color terminal)
 opt.termguicolors = true
 opt.background = "dark" -- colorschemes that can be light or dark will be made dark
-opt.signcolumn = "yes" -- show sign column so that text doesn't shift
+opt.signcolumn = "yes"  -- show sign column so that text doesn't shift
 
 -- backspace
 opt.backspace = "indent,eol,start"
@@ -43,10 +43,10 @@ vim.keymap.set('n', '<leader>nt', ':Neotree toggle<Return>', opts)
 -- Select all
 vim.keymap.set('n', '<C-a>', 'gg<S-v>G')
 
-vim.keymap.set("n", "<leader>to", "<cmd>tabnew<CR>", { desc = "Open new tab" }) -- open new tab
-vim.keymap.set("n", "<leader>tx", "<cmd>tabclose<CR>", { desc = "Close current tab" }) -- close current tab
-vim.keymap.set("n", "<tab>", "<cmd>tabn<CR>", { desc = "Go to next tab" }) --  go to next tab
-vim.keymap.set("n", "<leader>tp", "<cmd>tabp<CR>", { desc = "Go to previous tab" }) --  go to previous tab
-vim.keymap.set("n", "<leader>tf", "<cmd>tabnew %<CR>", { desc = "Open current buffer in new tab" }) --  move current buffer to new tab
-
-
+--[[ vim.keymap.set("n", "<leader>to", "<cmd>tabnew<CR>", { desc = "Open new tab" })                     -- open new tab
+vim.keymap.set("n", "<leader>tx", "<cmd>tabclose<CR>", { desc = "Close current tab" })              -- close current tab
+vim.keymap.set("n", "<tab>", "<cmd>tabn<CR>", { desc = "Go to next tab" })                          --  go to next tab
+vim.keymap.set("n", "<leader>tp", "<cmd>tabp<CR>", { desc = "Go to previous tab" })                 --  go to previous tab
+vim.keymap.set("n", "<leader>tf", "<cmd>tabnew %<CR>", { desc = "Open current buffer in new tab" }) --  move current buffer to new tab ]]
+vim.keymap.set('n', '<tab>', '<Cmd>BufferLineCycleNext<CR>', {desc = 'Next buffer'})
+vim.keymap.set('n', '<S-tab>', '<Cmd>BufferLineCyclePrev<CR>', {desc = 'Previous buffer'})
