@@ -1,5 +1,6 @@
 return {
   "nvim-neo-tree/neo-tree.nvim",
+  event = 'Bufwipeout',
   branch = "v3.x",
   dependencies = {
     "nvim-lua/plenary.nvim",
@@ -9,8 +10,15 @@ return {
   config = function()
     -- vim.keymap.set('n', '<C-n>', ':Neotree filesystem reveal left<CR>', {})
     require("neo-tree").setup({
+      use_libuv_file_watcher = true,
+      close_if_last_window = false,
       window = {
-        width = 28,
+        position = "left",
+        width = 30,
+        mapping_options = {
+          noremap = true,
+          nowait = true,
+        },
       },
     })
   end

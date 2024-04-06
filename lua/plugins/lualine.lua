@@ -1,18 +1,18 @@
 -- show user name
---[[ local name = function()
+local name = function()
   local os = require("os")
   local username = os.getenv("USERNAME")
   if not username then
     username = os.getenv("USER")
   end
   return username
-end ]]
+end
 
 local default_sep_icons = {
   default = { left = "", right = " " },
   round = { left = "", right = "" },
-  block = { left = "█", right = "█" },
-  arrow = { left = "", right = "" },
+  block = { left = "█", right = " " },
+  -- arrow = { left = "", right = "" },
 }
 
 local folderName = function()
@@ -72,7 +72,7 @@ return {
             'mode',
             icons_enabled = true,
             icon = '',
-            separator = default_sep_icons.default,
+            separator = default_sep_icons.block,
           }
         },
         lualine_b = {
@@ -80,20 +80,6 @@ return {
             'filetype',
             colored = true,
             icon_only = true,
-            --[[ 'buffers',
-            show_filename_only = true,       -- Shows shortened relative path when set to false.
-            hide_filename_extension = false, -- Hide filename extension when set to true.
-            show_modified_status = true,     -- Shows indicator when the buffer is modified.
-
-            mode = 0,                        -- 0: Shows buffer name
-            max_length = vim.o.columns * 2 / 3,
-            filetype_names = {
-              TelescopePrompt = 'Telescope',
-              dashboard = 'Dashboard',
-              packer = 'Packer',
-              fzf = 'FZF',
-              alpha = 'Alpha'
-            }, ]]
           },
           {
             'filename',
@@ -101,7 +87,7 @@ return {
             newfile_status = false,
             path = 0,
             padding = 0,
-            separator = default_sep_icons.default,
+            separator = default_sep_icons.block,
           }
         },
         lualine_c = {
@@ -152,7 +138,7 @@ return {
         lualine_z = {
           {
             'progress',
-            icon = { "󰈚 ", align = 'center', color = { fg = 'black', bg = '#99C379' } },
+            icon = { "󰦪 ", align = 'center', color = { fg = 'black', bg = '#99C379' } },
             color = { fg = '#99C379', bg = '' }, -- #E06C75 #99C379
             separator = { left = '' },
             padding = { left = 0, right = 1 },
