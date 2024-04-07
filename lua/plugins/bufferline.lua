@@ -1,3 +1,5 @@
+vim.g.mode = 'buffers'
+
 local txt = function(str, hl)
   str = str or ""
   local a = "%#" .. hl .. "#" .. str
@@ -6,10 +8,15 @@ end
 
 local btn = function(str, hl, func, args)
   str = hl and txt(str, hl) or str
-  arg = arg or ""
-  local a = "%" .. arg .. "@" .. func .. "@" .. str .. "%X"
+  args = args or ""
+  local a = "%" .. args .. "@" .. func .. "@" .. str .. "%X"
   return a
 end
+
+vim.cmd [[
+function! Empty(a,b,c,d)
+endfunction
+]]
 
 vim.cmd [[
 function! CloseAllBufs(a, b, c, d)
@@ -41,11 +48,26 @@ endfunction
 ]]
 
 local colors = {
-  active = { fg = '#3f3f3f', bg = '#E06C75'--[[ '#89B4FA' ]] },
+  active = { fg = '#3f3f3f', bg = '#E06C75' --[[ '#89B4FA' ]] },
   default = { fg = 'white', bg = '#3f3f3f' },
-  tab_label = { fg = '#3f3f3f', bg = 'lightblue' },
-  buffer_close = { fg = 'black', bg = '#99C379'--[[ '#E06C75' ]] },
+  tab_label = { fg = '#3f3f3f', bg = 'LightYellow' },
+  buffer_close = { fg = 'black', bg = '#89B4FA' --[[ '#E06C75' ]] },
 }
+
+--[[ local default_sep_icons = {
+  default = { left = "", right = " " },
+  round = { left = "", right = "" },
+  block = { left = "█", right = " " },
+  arrow = { left = "", right = "" },
+} ]]
+
+-- set highlight group
+vim.api.nvim_set_hl(0, 'TabNewBtn', { fg = colors.default.fg, bg = colors.default.bg })
+vim.api.nvim_set_hl(0, 'TabLabel', { fg = colors.tab_label.fg, bg = colors.tab_label.bg })
+vim.api.nvim_set_hl(0, 'GoToActive', { fg = colors.active.fg, bg = colors.active.bg })
+vim.api.nvim_set_hl(0, 'CloseTabBtn', { fg = 'Black', bg = colors.active.bg })
+vim.api.nvim_set_hl(0, 'GoToSmall', { fg = colors.default.fg, bg = colors.default.bg })
+vim.api.nvim_set_hl(0, 'CloseAllBtn', { fg = colors.buffer_close.fg, bg = colors.buffer_close.bg })
 
 -- 새로운 것들을 많이 배웠다.
 -- bufferline.nvim에서 top right에 버튼을 추가해 보기로 했다. nvchad와 비슷하게.
@@ -72,43 +94,30 @@ return {
         custom_areas = {
           right = function()
             local result = {}
-            local add_tab = {
-              text = "%@NewTab@%#TabNewBtn# 󰐕 %X",
-            }
-            vim.api.nvim_set_hl(0, 'TabNewBtn', { fg = colors.default.fg, bg = colors.default.bg })
+            local add_tab = { text = btn(' 󰐕 ', 'TabNewBtn', 'NewTab') }
             table.insert(result, add_tab)
             if (#vim.api.nvim_list_tabpages() > 1) then
-              local tab_label = {
-                text = "%#TabLabel# TABS ",
-              }
-              vim.api.nvim_set_hl(0, 'TabLabel', { fg = colors.tab_label.fg, bg = colors.tab_label.bg })
+              local tab_label = { text = btn(' TABS ', 'TabLabel', 'Empty') }
               table.insert(result, tab_label)
               for i = 1, #vim.api.nvim_list_tabpages() do
                 if i == vim.fn.tabpagenr() then
                   local active_tabs_entry = {
-                    text = "%" .. i .. "@GoToTab@".."%#GoToActive# " .. i .. "%@CloseTab@ %#CloseTabBtn# %X" .. "%X",
+                    text = btn(" " .. i .. '%@CloseTab@ %#CloseTabBtn# %X', 'GoToActive',
+                      'GoToTab', i)
                   }
-                  vim.api.nvim_set_hl(0, 'GoToActive', { fg = colors.active.fg, bg = colors.active.bg })
-                  vim.api.nvim_set_hl(0, 'CloseTabBtn', { fg = 'black', bg = colors.active.bg })
                   table.insert(result, active_tabs_entry)
                 else
-                  local inactive_tabs_entry = {
-                    text = "%" .. i .. "@GoToTab@" .. "%#GoToSmall# " .. i .. " %X",
-                  }
-                  vim.api.nvim_set_hl(0, 'GoToSmall', { fg = colors.default.fg, bg = colors.default.bg })
+                  local inactive_tabs_entry = { text = btn(" " .. i .. " ", 'GoToSmall', 'GoToTab', i) }
                   table.insert(result, inactive_tabs_entry)
                 end
               end
             end
-            local close_buffer = {
-              text = "%@CloseAllBufs@%#CloseAllBtn# 󰅖 %X",
-            }
-            vim.api.nvim_set_hl(0, 'CloseAllBtn', { fg = colors.buffer_close.fg, bg = colors.buffer_close.bg })
+            local close_buffer = { text = btn(' 󰅖 ', 'CloseAllBtn', 'CloseAllBufs') }
             table.insert(result, close_buffer)
             return result
           end
         },
-        mode = "buffers",
+        mode = vim.g.mode,
         numbers = "none",                    -- | "ordinal" | "buffer_id" | "both" | function({ ordinal, id, lower, raise }): string,
         close_command = "bdelete! %d",       -- can be a string | function, see "Mouse actions"
         right_mouse_command = "bdelete! %d", -- can be a string | function, see "Mouse actions"
@@ -170,7 +179,7 @@ return {
         -- can also be a table containing 2 custom separators
         -- [focused and unfocused]. eg: { '|', '|' }
         separator_style = { '|', '|' }, -- | "thick" | "thin" | { 'any', 'any' },
-        enforce_regular_tabs = true,
+        enforce_regular_tabs = false,
         always_show_bufferline = true,
         -- sort_by = 'id' | 'extension' | 'relative_directory' | 'directory' | 'tabs' | function(buffer_a, buffer_b)
         --   -- add custom logic
