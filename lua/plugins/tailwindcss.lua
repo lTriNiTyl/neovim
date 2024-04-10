@@ -12,6 +12,8 @@ return {
     opts = {
       user_default_options = {
         tailwind = true,
+        mode = "virtualtext",
+        virtualtext = "  ",
       },
     },
   },
