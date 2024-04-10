@@ -1,4 +1,5 @@
 vim.g.mode = 'buffers'
+vim.g.bToggled = 0 -- 0: off, 1 : on
 
 local txt = function(str, hl)
   str = str or ""
@@ -11,6 +12,19 @@ local btn = function(str, hl, func, args)
   args = args or ""
   local a = "%" .. args .. "@" .. func .. "@" .. str .. "%X"
   return a
+end
+
+-- 마지막 버퍼인지 아닌지 알아내는 함수
+local is_last_buffer = function(bufnr)
+  --[[ print('is_last_buffer:', vim.fn.bufnr(bufnr), vim.fn.bufnr('#'), vim.fn.bufnr('%'), vim.fn.bufnr('$'),
+    vim.fn.bufnr(bufnr) == vim.fn.bufnr('%'), vim.fn.bufnr('%') == vim.fn.bufnr('$'), vim.fn.bufnr(bufnr) == vim.fn.bufnr('$')) ]]
+  local one = vim.fn.bufnr(bufnr) == vim.fn.bufnr('%')
+  local two = vim.fn.bufnr(bufnr) == vim.fn.bufnr('$')
+  if (one and not two) or (one and two) then
+    return true
+  else
+    return false
+  end
 end
 
 vim.cmd [[
@@ -47,9 +61,15 @@ execute a:tabnr ..'tabnext'
 endfunction
 ]]
 
+vim.cmd [[
+function! Toggle(btoggle,b,c,d)
+let g:bToggled = !g:bToggled | redrawtabline
+endfunction
+]]
+
 local colors = {
-  active = { fg = '#3f3f3f', bg = '#E06C75' --[[ '#89B4FA' ]] },
-  default = { fg = 'white', bg = '#3f3f3f' },
+  active = { fg = '#414572', bg = '#E06C75' --[[ '#89B4FA' ]] },
+  default = { fg = 'white', bg = '#414572' },
   tab_label = { fg = '#3f3f3f', bg = 'LightYellow' },
   buffer_close = { fg = 'black', bg = '#89B4FA' --[[ '#E06C75' ]] },
 }
@@ -61,12 +81,15 @@ local colors = {
   arrow = { left = "", right = "" },
 } ]]
 
+print(vim.fn.bufname())
+
 -- set highlight group
 vim.api.nvim_set_hl(0, 'TabNewBtn', { fg = colors.default.fg, bg = colors.default.bg })
 vim.api.nvim_set_hl(0, 'TabLabel', { fg = colors.tab_label.fg, bg = colors.tab_label.bg })
 vim.api.nvim_set_hl(0, 'GoToActive', { fg = colors.active.fg, bg = colors.active.bg })
 vim.api.nvim_set_hl(0, 'CloseTabBtn', { fg = 'Black', bg = colors.active.bg })
 vim.api.nvim_set_hl(0, 'GoToSmall', { fg = colors.default.fg, bg = colors.default.bg })
+vim.api.nvim_set_hl(0, 'ToggleBtn', { fg = '#f7ad0d', bg = '#414572' })
 vim.api.nvim_set_hl(0, 'CloseAllBtn', { fg = colors.buffer_close.fg, bg = colors.buffer_close.bg })
 
 -- 새로운 것들을 많이 배웠다.
@@ -88,7 +111,7 @@ return {
     'akinsho/bufferline.nvim',
     after = 'catppuccin',
     version = "*",
-    dependencies = 'nvim-tree/nvim-web-devicons',
+    dependencies = 'neo-tree/nvim-web-devicons',
     require("bufferline").setup {
       options = {
         custom_areas = {
@@ -112,17 +135,41 @@ return {
                 end
               end
             end
+            local toggleOff = { text = btn('   ', 'ToggleBtn', 'Toggle', 0) }
+            local toggleOn = { text = btn('   ', 'ToggleBtn', 'Toggle', 1) }
+            if vim.g.bToggled == 0 then
+              table.insert(result, toggleOff)
+            else
+              table.insert(result, toggleOn)
+            end
             local close_buffer = { text = btn(' 󰅖 ', 'CloseAllBtn', 'CloseAllBufs') }
             table.insert(result, close_buffer)
             return result
           end
         },
         mode = vim.g.mode,
-        numbers = "none",                    -- | "ordinal" | "buffer_id" | "both" | function({ ordinal, id, lower, raise }): string,
-        close_command = "bdelete! %d",       -- can be a string | function, see "Mouse actions"
-        right_mouse_command = "bdelete! %d", -- can be a string | function, see "Mouse actions"
-        left_mouse_command = "buffer %d",    -- can be a string | function, see "Mouse actions"
-        middle_mouse_command = nil,          -- can be a string | function, see "Mouse actions"
+        numbers = "none", -- | "ordinal" | "buffer_id" | "both" | function({ ordinal, id, lower, raise }): string,
+        -- close_command = "bdelete! %d",       -- can be a string | function, see "Mouse actions"
+        close_command = function(bufnr)
+          local buffers = vim.fn.getbufinfo({ buflisted = 1 })
+          if #buffers > 1 and is_last_buffer(bufnr) then
+            vim.cmd 'bprev'
+            vim.api.nvim_buf_delete(bufnr, { force = true })
+            --[[ if vim.bo.filetype == 'neo-tree' then
+              vim.fn.bufnr('%')
+            end ]]
+          else
+            vim.api.nvim_buf_delete(bufnr, { force = true })
+          end
+        end,
+        right_mouse_command = "vertical sbuffer %d", -- can be a string | function, see "Mouse actions"
+        -- left_mouse_command = "buffer %d",    -- can be a string | function, see "Mouse actions"
+        --[[ left_mouse_command = function(bufnr)
+          if vim.bo.filetype ~= 'neo-tree' then
+            vim.cmd("buffer " .. bufnr)
+          end
+        end, ]]
+        middle_mouse_command = nil, -- can be a string | function, see "Mouse actions"
         -- NOTE: this plugin is designed with this icon in mind,
         -- and so changing this is NOT recommended, this is intended
         -- as an escape hatch for people who cannot bear it for whatever reason
@@ -169,7 +216,7 @@ return {
         --     return true
         --   end
         -- end,
-        offsets = { { filetype = "neo-tree", text = "", padding = 1 } },
+        offsets = { { filetype = "neo-tree", text = "File Explorer", padding = 1 } },
         color_icons = true,
         show_buffer_icons = true,
         show_buffer_close_icons = true,
@@ -186,7 +233,7 @@ return {
         --   return buffer_a.modified > buffer_b.modified
         -- end
       },
-      -- highlights = require("catppuccin.groups.integrations.bufferline").get()
+      highlights = require("catppuccin.groups.integrations.bufferline").get()
     }
   },
 }
