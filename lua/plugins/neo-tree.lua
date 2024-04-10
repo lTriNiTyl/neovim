@@ -11,7 +11,7 @@ return {
     -- vim.keymap.set('n', '<C-n>', ':Neotree filesystem reveal left<CR>', {})
     require("neo-tree").setup({
       use_libuv_file_watcher = true,
-      close_if_last_window = false,
+      close_if_last_window = true,
       window = {
         position = "left",
         width = 30,
