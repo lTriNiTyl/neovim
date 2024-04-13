@@ -1,6 +1,3 @@
-vim.g.mode = 'buffers'
-vim.g.bToggled = 0 -- 0: off, 1 : on
-
 local txt = function(str, hl)
   str = str or ""
   local a = "%#" .. hl .. "#" .. str
@@ -16,8 +13,7 @@ end
 
 -- 마지막 버퍼인지 아닌지 알아내는 함수
 local is_last_buffer = function(bufnr)
-  --[[ print('is_last_buffer:', vim.fn.bufnr(bufnr), vim.fn.bufnr('#'), vim.fn.bufnr('%'), vim.fn.bufnr('$'),
-    vim.fn.bufnr(bufnr) == vim.fn.bufnr('%'), vim.fn.bufnr('%') == vim.fn.bufnr('$'), vim.fn.bufnr(bufnr) == vim.fn.bufnr('$')) ]]
+  -- print('is_last_buffer:', vim.fn.bufnr(bufnr), vim.fn.bufnr('#'), vim.fn.bufnr('%'), vim.fn.bufnr('$'))
   local one = vim.fn.bufnr(bufnr) == vim.fn.bufnr('%')
   local two = vim.fn.bufnr(bufnr) == vim.fn.bufnr('$')
   if (one and not two) or (one and two) then
@@ -61,27 +57,31 @@ execute a:tabnr ..'tabnext'
 endfunction
 ]]
 
+-- toggle button neo-tree on/off
 vim.cmd [[
 function! Toggle(btoggle,b,c,d)
-let g:bToggled = !g:bToggled | redrawtabline
+let g:bToggled = !g:bToggled
+" let g:show_buffer_close_icon = !g:show_buffer_close_icon
+redrawtabline
+execute 'Neotree filesystem reveal left toggle'
 endfunction
 ]]
 
+-- '#E06C75', '#f7ad0d', '#89B4FA', '#414572', '#ffd859'
 local colors = {
-  active = { fg = '#414572', bg = '#E06C75' --[[ '#89B4FA' ]] },
+  active = { fg = '#414572', bg = 'LightRed' },
   default = { fg = 'white', bg = '#414572' },
-  tab_label = { fg = '#3f3f3f', bg = 'LightYellow' },
+  tab_label = { fg = '#414572', bg = 'LightYellow' },
   buffer_close = { fg = 'black', bg = '#89B4FA' --[[ '#E06C75' ]] },
+  togglebtn = { fg = '#ffd859', bg = '#414572' },
 }
 
---[[ local default_sep_icons = {
+local default_sep_icons = {
   default = { left = "", right = " " },
   round = { left = "", right = "" },
-  block = { left = "█", right = " " },
+  block = { left = "█", right = "█" },
   arrow = { left = "", right = "" },
-} ]]
-
-print(vim.fn.bufname())
+}
 
 -- set highlight group
 vim.api.nvim_set_hl(0, 'TabNewBtn', { fg = colors.default.fg, bg = colors.default.bg })
@@ -89,8 +89,11 @@ vim.api.nvim_set_hl(0, 'TabLabel', { fg = colors.tab_label.fg, bg = colors.tab_l
 vim.api.nvim_set_hl(0, 'GoToActive', { fg = colors.active.fg, bg = colors.active.bg })
 vim.api.nvim_set_hl(0, 'CloseTabBtn', { fg = 'Black', bg = colors.active.bg })
 vim.api.nvim_set_hl(0, 'GoToSmall', { fg = colors.default.fg, bg = colors.default.bg })
-vim.api.nvim_set_hl(0, 'ToggleBtn', { fg = '#f7ad0d', bg = '#414572' })
+vim.api.nvim_set_hl(0, 'ToggleBtn', { fg = colors.togglebtn.fg, bg = colors.togglebtn.bg })
 vim.api.nvim_set_hl(0, 'CloseAllBtn', { fg = colors.buffer_close.fg, bg = colors.buffer_close.bg })
+vim.api.nvim_set_hl(0, 'CloseBtnSep', { fg = colors.buffer_close.bg, bg = '' })
+vim.api.nvim_set_hl(0, 'TabNewBtnSep', { fg = colors.default.bg, bg = '' })
+vim.api.nvim_set_hl(0, 'TabSep', { fg = colors.tab_label.bg, bg = '' })
 
 -- 새로운 것들을 많이 배웠다.
 -- bufferline.nvim에서 top right에 버튼을 추가해 보기로 했다. nvchad와 비슷하게.
@@ -109,6 +112,7 @@ vim.api.nvim_set_hl(0, 'CloseAllBtn', { fg = colors.buffer_close.fg, bg = colors
 return {
   {
     'akinsho/bufferline.nvim',
+    lazy = false,
     after = 'catppuccin',
     version = "*",
     dependencies = 'neo-tree/nvim-web-devicons',
@@ -117,11 +121,22 @@ return {
         custom_areas = {
           right = function()
             local result = {}
-            local add_tab = { text = btn(' 󰐕 ', 'TabNewBtn', 'NewTab') }
+            local separator = {}
+            local sep = function(icon, hl)
+              separator =
+              {
+                text = btn(icon, hl, 'Empty')
+              }
+              table.insert(result, separator)
+            end
+            sep(default_sep_icons.round.left, 'TabNewBtnSep')
+            local add_tab = { text = btn('󰐕 ', 'TabNewBtn', 'NewTab') }
             table.insert(result, add_tab)
             if (#vim.api.nvim_list_tabpages() > 1) then
-              local tab_label = { text = btn(' TABS ', 'TabLabel', 'Empty') }
+              sep(default_sep_icons.block.left, 'TabSep')
+              local tab_label = { text = btn('TABS', 'TabLabel', 'Empty') }
               table.insert(result, tab_label)
+              sep(default_sep_icons.arrow.right, 'TabSep')
               for i = 1, #vim.api.nvim_list_tabpages() do
                 if i == vim.fn.tabpagenr() then
                   local active_tabs_entry = {
@@ -142,8 +157,9 @@ return {
             else
               table.insert(result, toggleOn)
             end
-            local close_buffer = { text = btn(' 󰅖 ', 'CloseAllBtn', 'CloseAllBufs') }
+            local close_buffer = { text = btn(" 󰅖", 'CloseAllBtn', 'CloseAllBufs') }
             table.insert(result, close_buffer)
+            sep(default_sep_icons.round.right, 'CloseBtnSep')
             return result
           end
         },
@@ -155,27 +171,33 @@ return {
           if #buffers > 1 and is_last_buffer(bufnr) then
             vim.cmd 'bprev'
             vim.api.nvim_buf_delete(bufnr, { force = true })
-            --[[ if vim.bo.filetype == 'neo-tree' then
-              vim.fn.bufnr('%')
-            end ]]
           else
-            vim.api.nvim_buf_delete(bufnr, { force = true })
+            if vim.bo.filetype ~= 'neo-tree' then
+              vim.api.nvim_buf_delete(bufnr, { force = true })
+            end
           end
+          -- redraw를 안할 경우 버퍼는 지워졌지만 UI상으로는 남아있게 된다.
+          vim.cmd("redrawtabline")
         end,
         right_mouse_command = "vertical sbuffer %d", -- can be a string | function, see "Mouse actions"
-        -- left_mouse_command = "buffer %d",    -- can be a string | function, see "Mouse actions"
-        --[[ left_mouse_command = function(bufnr)
+        -- left_mouse_command = "buffer %d",            -- can be a string | function, see "Mouse actions"
+        left_mouse_command = function(bufnr)
           if vim.bo.filetype ~= 'neo-tree' then
             vim.cmd("buffer " .. bufnr)
           end
-        end, ]]
+        end,
+        hover = {
+          enable = true,
+          delay = 200,
+          reveal = { 'close' }
+        },
         middle_mouse_command = nil, -- can be a string | function, see "Mouse actions"
         -- NOTE: this plugin is designed with this icon in mind,
         -- and so changing this is NOT recommended, this is intended
         -- as an escape hatch for people who cannot bear it for whatever reason
         indicator_icon = nil,
         indicator = { style = "none", icon = " " },
-        buffer_close_icon = '󰅖',
+        buffer_close_icon = '',
         modified_icon = "●",
         close_icon = "󰅖", --"",
         close_tab_icon = "",
@@ -219,13 +241,13 @@ return {
         offsets = { { filetype = "neo-tree", text = "File Explorer", padding = 1 } },
         color_icons = true,
         show_buffer_icons = true,
-        show_buffer_close_icons = true,
+        show_buffer_close_icons = vim.g.show_buffer_close_icon ~= 0,
         show_close_icon = false,
         show_tab_indicators = false,
         persist_buffer_sort = true, -- whether or not custom sorted buffers should persist
         -- can also be a table containing 2 custom separators
         -- [focused and unfocused]. eg: { '|', '|' }
-        separator_style = { '|', '|' }, -- | "thick" | "thin" | { 'any', 'any' },
+        separator_style = { '|', '|' }, --[[ { '', '' }, ]] -- | "thick" | "thin" | { 'any', 'any' },
         enforce_regular_tabs = false,
         always_show_bufferline = true,
         -- sort_by = 'id' | 'extension' | 'relative_directory' | 'directory' | 'tabs' | function(buffer_a, buffer_b)
@@ -233,7 +255,63 @@ return {
         --   return buffer_a.modified > buffer_b.modified
         -- end
       },
-      highlights = require("catppuccin.groups.integrations.bufferline").get()
+      -- highlights = require("catppuccin.groups.integrations.bufferline").get()
+      highlights = {
+        background = {
+          fg = 'Gray',
+          bg = ''
+        },
+        fill = {
+          fg = '',
+          bg = ''
+        },
+        close_button = {
+          fg = 'Gray',
+          bg = '',
+        },
+        close_button_visible = {
+          fg = 'LightGray',
+          bg = '',
+        },
+        close_button_selected = {
+          fg = 'red',
+          bg = '',
+        },
+        buffer_visible = {
+          fg = 'Gray',
+          bg = '',
+        },
+        buffer_selected = {
+          fg = 'White',
+          bg = '',
+          bold = true,
+          italic = false,
+        },
+        tab_separator = {
+          fg = 'blue',
+          bg = ''
+        },
+        separator_selected = {
+          fg = 'white',
+          bg = ''
+        },
+        separator_visible = {
+          fg = '',
+          bg = ''
+        },
+        separator = {
+          fg = 'gold',
+          bg = ''
+        },
+        indicator_visible = {
+          fg = '',
+          bg = ''
+        },
+        indicator_selected = {
+          fg = 'red',
+          bg = ''
+        },
+      },
     }
   },
 }
