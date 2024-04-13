@@ -37,6 +37,7 @@ opt.clipboard = "unnamedplus"
 
 vim.g.mapleader = " "
 
+-- bufferline 관련 [[
 vim.g.mode = 'buffers'
 vim.g.show_buffer_close_icon = 1
 vim.g.bToggled = 0
@@ -48,7 +49,7 @@ end
 
 local opts = { noremap = true, silent = true  }
 vim.keymap.set('n', '<leader>nt', ':lua ToggleNeotreeAndSetToggled()<CR>', opts)
--- vim.keymap.set('n', '<leader>nt', ':Neotree filesystem reveal left toggle<CR>', opts)
+-- ]]
 
 -- Select all
 vim.keymap.set('n', '<C-a>', 'gg<S-v>G')
