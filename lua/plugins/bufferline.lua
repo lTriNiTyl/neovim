@@ -61,11 +61,18 @@ endfunction
 vim.cmd [[
 function! Toggle(btoggle,b,c,d)
 let g:bToggled = !g:bToggled
-" let g:show_buffer_close_icon = !g:show_buffer_close_icon
 redrawtabline
 execute 'Neotree filesystem reveal left toggle'
 endfunction
 ]]
+
+vim.api.nvim_create_autocmd({ 'BufLeave' }, {
+  callback = function()
+    --[[ if vim.bo.filetype == 'neo-tree' then
+      vim.g.bToggled = vim.g.bToggled == 0 and 1 or 0
+    end ]]
+  end
+})
 
 -- '#E06C75', '#f7ad0d', '#89B4FA', '#414572', '#ffd859'
 local colors = {
@@ -112,7 +119,6 @@ vim.api.nvim_set_hl(0, 'TabSep', { fg = colors.tab_label.bg, bg = '' })
 return {
   {
     'akinsho/bufferline.nvim',
-    lazy = false,
     after = 'catppuccin',
     version = "*",
     dependencies = 'neo-tree/nvim-web-devicons',
@@ -165,7 +171,6 @@ return {
         },
         mode = vim.g.mode,
         numbers = "none", -- | "ordinal" | "buffer_id" | "both" | function({ ordinal, id, lower, raise }): string,
-        -- close_command = "bdelete! %d",       -- can be a string | function, see "Mouse actions"
         close_command = function(bufnr)
           local buffers = vim.fn.getbufinfo({ buflisted = 1 })
           if #buffers > 1 and is_last_buffer(bufnr) then
@@ -180,7 +185,6 @@ return {
           vim.cmd("redrawtabline")
         end,
         right_mouse_command = "vertical sbuffer %d", -- can be a string | function, see "Mouse actions"
-        -- left_mouse_command = "buffer %d",            -- can be a string | function, see "Mouse actions"
         left_mouse_command = function(bufnr)
           if vim.bo.filetype ~= 'neo-tree' then
             vim.cmd("buffer " .. bufnr)
@@ -241,7 +245,7 @@ return {
         offsets = { { filetype = "neo-tree", text = "File Explorer", padding = 1 } },
         color_icons = true,
         show_buffer_icons = true,
-        show_buffer_close_icons = vim.g.show_buffer_close_icon ~= 0,
+        show_buffer_close_icons = true,
         show_close_icon = false,
         show_tab_indicators = false,
         persist_buffer_sort = true, -- whether or not custom sorted buffers should persist
