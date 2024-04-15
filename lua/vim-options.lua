@@ -39,12 +39,12 @@ vim.g.mapleader = " "
 
 -- bufferline 관련 [[
 vim.g.mode = 'buffers'
-vim.g.show_buffer_close_icon = 1
 vim.g.bToggled = 0
 
 ToggleNeotreeAndSetToggled = function()
   vim.cmd(':Neotree filesystem reveal left toggle')
   vim.g.bToggled = vim.g.bToggled == 0 and 1 or 0
+  vim.cmd 'redrawtabline'
 end
 
 local opts = { noremap = true, silent = true  }
