@@ -66,7 +66,7 @@ execute 'Neotree filesystem reveal left toggle'
 endfunction
 ]]
 
-vim.api.nvim_create_autocmd({ 'BufLeave' }, {
+vim.api.nvim_create_autocmd({ 'BufWinLeave' }, {
   callback = function()
     --[[ if vim.bo.filetype == 'neo-tree' then
       vim.g.bToggled = vim.g.bToggled == 0 and 1 or 0
@@ -121,7 +121,7 @@ return {
     'akinsho/bufferline.nvim',
     after = 'catppuccin',
     version = "*",
-    dependencies = 'neo-tree/nvim-web-devicons',
+    dependencies = { 'neo-tree/nvim-web-devicons' },
     require("bufferline").setup {
       options = {
         custom_areas = {
@@ -221,7 +221,7 @@ return {
         max_name_length = 30,
         max_prefix_length = 30, -- prefix used when a buffer is de-duplicated
         tab_size = 21,
-        diagnostics = false,    -- | "nvim_lsp" | "coc",
+        diagnostics = false,
         diagnostics_update_in_insert = false,
         -- diagnostics_indicator = function(count, level, diagnostics_dict, context)
         --   return "("..count..")"
@@ -251,9 +251,11 @@ return {
         persist_buffer_sort = true, -- whether or not custom sorted buffers should persist
         -- can also be a table containing 2 custom separators
         -- [focused and unfocused]. eg: { '|', '|' }
+        -- 여기서부터
         separator_style = { '|', '|' }, --[[ { '', '' }, ]] -- | "thick" | "thin" | { 'any', 'any' },
         enforce_regular_tabs = false,
         always_show_bufferline = true,
+        -- 여기까지
         -- sort_by = 'id' | 'extension' | 'relative_directory' | 'directory' | 'tabs' | function(buffer_a, buffer_b)
         --   -- add custom logic
         --   return buffer_a.modified > buffer_b.modified
