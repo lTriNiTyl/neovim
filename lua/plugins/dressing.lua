@@ -3,8 +3,8 @@ return {
     "stevearc/dressing.nvim",
     event = "VeryLazy",
   },
-  --[[ {
-    "brenoprata10/nvim-highlight-colors",
+  {
+    --[[ "brenoprata10/nvim-highlight-colors",
     config = function()
       require("nvim-highlight-colors").setup({
         ---Render style
@@ -28,8 +28,8 @@ return {
           { label = '%-%-theme%-secondary%-color', color = '#5a5d64' },
         }
       })
-    end
-  }, ]]
+    end ]]
+  },
   {
     'mg979/vim-visual-multi'
   },

@@ -42,7 +42,7 @@ vim.g.mode = 'buffers'
 vim.g.bToggled = 0
 
 ToggleNeotreeAndSetToggled = function()
-  vim.cmd(':Neotree filesystem reveal left toggle')
+  vim.cmd(':Neotree filesystem reveal toggle left')
   vim.g.bToggled = vim.g.bToggled == 0 and 1 or 0
   vim.cmd 'redrawtabline'
 end

@@ -16,8 +16,8 @@ return {
       -- custom options here
     },
     -- config = function(_, opts)
-      -- require("tokyodark").setup(opts)   -- calling setup is optional
-      -- vim.cmd [[colorscheme tokyodark]]
+    -- require("tokyodark").setup(opts)   -- calling setup is optional
+    -- vim.cmd [[colorscheme tokyodark]]
     -- end,
   },
   {
@@ -26,7 +26,7 @@ return {
     priority = 1000,
     opts = {},
     -- config = function()
-      -- vim.cmd [[colorscheme tokyonight-storm]]
+    -- vim.cmd [[colorscheme tokyonight-storm]]
     -- end
   },
   {
@@ -34,12 +34,12 @@ return {
     lazy = false,
     priority = 1000,
     opts = {},
-    --    config = function()
-    --      require('onedark').setup({
-    --        style = 'deep'
-    --      })
-    --      require('onedark').load()
-    --    end
+       --[[ config = function()
+         require('onedark').setup({
+           style = 'deep'
+         })
+         require('onedark').load()
+       end ]]
   },
   {
     "rose-pine/neovim",
@@ -65,8 +65,8 @@ return {
     'rebelot/kanagawa.nvim',
     lazy = false,
     priority = 1000,
-    --    config = function()
-    --      vim.cmd [[colorscheme kanagawa]]
-    --    end
+    -- config = function()
+      -- vim.cmd [[colorscheme kanagawa]]
+    -- end
   },
 }

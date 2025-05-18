@@ -14,6 +14,7 @@ return {
       enable_diagnostics = true,
       use_libuv_file_watcher = true,
       close_if_last_window = true,
+      show_unloaded = true,
       sources = {
         "filesystem",
         "buffers",
@@ -23,6 +24,7 @@ return {
       buffers = {
         follow_current_file = {
           enable = true,
+          leave_dirs_open = false,
         },
       },
       symbols = {

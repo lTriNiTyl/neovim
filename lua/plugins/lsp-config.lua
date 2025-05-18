@@ -1,9 +1,10 @@
 return {
   {
-    "williamboman/mason.nvim",
+    "mason-org/mason.nvim",
     build = ":MasonUpdate",
     dependencies = {
-      "williamboman/mason-lspconfig.nvim",
+      "mason-org/mason-lspconfig.nvim",
+      -- "ttytm/mason-lspconfig.nvim", branch = "ts-ls",
     },
     lazy = false,
     config = function()
@@ -17,10 +18,10 @@ return {
         }
       })
 
-      require("mason-lspconfig").setup({
+      require("mason-lspconfig").setup{
         -- list of servers for mason to install
-        ensure_installed = {
-          "tsserver",
+        automatic_enable = {
+          -- "ts-ls",
           "html",
           "cssls",
           "tailwindcss",
@@ -29,11 +30,26 @@ return {
           "graphql",
           "emmet_ls",
           "prismals",
-          "pyright"
+          -- "pyright",
+          "eslint",
+          "jedi_language_server"
         },
         -- auto-install configured servers (with lspconfig)
-        automatic_installation = true, -- not the same as ensure_installed
-      })
+        -- automatic_enable = true, -- not the same as ensure_installed
+      }
+      -- require("mason-lspconfig").setup()
+      --
+      -- require("mason-lspconfig").setup_handlers({
+	     --  function(server_name)
+      --     if server_name == "tsserver" then
+      --       server_name = "ts-ls"
+      --     end
+		    --   local capabilities = require("cmp_nvim_lsp").default_capabilities()
+		    --   require("lspconfig")[server_name].setup({
+			   --    capabilities = capabilities,
+		    --   })
+	     --  end,
+      -- })
     end
   },
   {
@@ -53,7 +69,7 @@ return {
       local keymap = vim.keymap -- for conciseness
 
       local opts = { noremap = true, silent = true }
-      local on_attach = function(client, bufnr)
+      local on_attach = function(_, bufnr)
         opts.buffer = bufnr
 
         -- set keybinds
@@ -115,8 +131,13 @@ return {
       })
 
       -- configure typescript server with plugin
-      lspconfig["tsserver"].setup({
-        capabilities = capabilities,
+      -- lspconfig["tsserver"].setup({
+      --   capabilities = capabilities,
+      --   on_attach = on_attach,
+      -- })
+
+      lspconfig["ts_ls"].setup({
+        require("plugins.servers.ts_ls"),
         on_attach = on_attach,
       })
 
@@ -169,19 +190,25 @@ return {
         filetypes = { "html", "typescriptreact", "javascriptreact", "css", "sass", "scss", "less", "svelte" },
       })
 
-      -- configure python server
-      lspconfig["pylsp"].setup({
+      lspconfig["jedi_language_server"].setup({
         capabilities = capabilities,
         on_attach = on_attach,
         filetypes = { "python" },
       })
 
       -- configure python server
-      lspconfig["pyright"].setup({
+      --[[ lspconfig["pylsp"].setup({
         capabilities = capabilities,
         on_attach = on_attach,
         filetypes = { "python" },
-      })
+      }) ]]
+
+      -- configure python server
+      --[[ lspconfig["pyright"].setup({
+        capabilities = capabilities,
+        on_attach = on_attach,
+        filetypes = { "python" },
+      }) ]]
 
       -- configure lua server (with special settings)
       lspconfig["lua_ls"].setup({
@@ -202,6 +229,11 @@ return {
             },
           },
         },
+      })
+
+      lspconfig["sourcekit"].setup({
+        capabilities = capabilities,
+        on_attach = on_attach,
       })
     end
   },

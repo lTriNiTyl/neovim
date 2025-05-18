@@ -122,202 +122,206 @@ return {
     after = 'catppuccin',
     version = "*",
     dependencies = { 'neo-tree/nvim-web-devicons' },
-    require("bufferline").setup {
-      options = {
-        custom_areas = {
-          right = function()
-            local result = {}
-            local separator = {}
-            local sep = function(icon, hl)
-              separator =
-              {
-                text = btn(icon, hl, 'Empty')
-              }
-              table.insert(result, separator)
-            end
-            sep(default_sep_icons.round.left, 'TabNewBtnSep')
-            local add_tab = { text = btn('󰐕 ', 'TabNewBtn', 'NewTab') }
-            table.insert(result, add_tab)
-            if (#vim.api.nvim_list_tabpages() > 1) then
-              sep(default_sep_icons.block.left, 'TabSep')
-              local tab_label = { text = btn('TABS', 'TabLabel', 'Empty') }
-              table.insert(result, tab_label)
-              sep(default_sep_icons.arrow.right, 'TabSep')
-              for i = 1, #vim.api.nvim_list_tabpages() do
-                if i == vim.fn.tabpagenr() then
-                  local active_tabs_entry = {
-                    text = btn(" " .. i .. '%@CloseTab@ %#CloseTabBtn# %X', 'GoToActive',
-                      'GoToTab', i)
-                  }
-                  table.insert(result, active_tabs_entry)
-                else
-                  local inactive_tabs_entry = { text = btn(" " .. i .. " ", 'GoToSmall', 'GoToTab', i) }
-                  table.insert(result, inactive_tabs_entry)
+    -- If the bufferline plug-in has not yet been loaded, an error occurs that the module cannot be found when calling require('bufferline').
+    -- Especially when using lazy.nvim, bufferline would not have been loaded when the setting was executed.
+    config = function()
+      require('bufferline').setup {
+        options = {
+          custom_areas = {
+            right = function()
+              local result = {}
+              local separator = {}
+              local sep = function(icon, hl)
+                separator =
+                {
+                  text = btn(icon, hl, 'Empty')
+                }
+                table.insert(result, separator)
+              end
+              sep(default_sep_icons.round.left, 'TabNewBtnSep')
+              local add_tab = { text = btn('󰐕 ', 'TabNewBtn', 'NewTab') }
+              table.insert(result, add_tab)
+              if (#vim.api.nvim_list_tabpages() > 1) then
+                sep(default_sep_icons.block.left, 'TabSep')
+                local tab_label = { text = btn('TABS', 'TabLabel', 'Empty') }
+                table.insert(result, tab_label)
+                sep(default_sep_icons.arrow.right, 'TabSep')
+                for i = 1, #vim.api.nvim_list_tabpages() do
+                  if i == vim.fn.tabpagenr() then
+                    local active_tabs_entry = {
+                      text = btn(" " .. i .. '%@CloseTab@ %#CloseTabBtn# %X', 'GoToActive',
+                        'GoToTab', i)
+                    }
+                    table.insert(result, active_tabs_entry)
+                  else
+                    local inactive_tabs_entry = { text = btn(" " .. i .. " ", 'GoToSmall', 'GoToTab', i) }
+                    table.insert(result, inactive_tabs_entry)
+                  end
                 end
               end
+              local toggleOff = { text = btn('   ', 'ToggleBtn', 'Toggle', 0) }
+              local toggleOn = { text = btn('   ', 'ToggleBtn', 'Toggle', 1) }
+              if vim.g.bToggled == 0 then
+                table.insert(result, toggleOff)
+              else
+                table.insert(result, toggleOn)
+              end
+              local close_buffer = { text = btn(" 󰅖", 'CloseAllBtn', 'CloseAllBufs') }
+              table.insert(result, close_buffer)
+              sep(default_sep_icons.round.right, 'CloseBtnSep')
+              return result
             end
-            local toggleOff = { text = btn('   ', 'ToggleBtn', 'Toggle', 0) }
-            local toggleOn = { text = btn('   ', 'ToggleBtn', 'Toggle', 1) }
-            if vim.g.bToggled == 0 then
-              table.insert(result, toggleOff)
-            else
-              table.insert(result, toggleOn)
-            end
-            local close_buffer = { text = btn(" 󰅖", 'CloseAllBtn', 'CloseAllBufs') }
-            table.insert(result, close_buffer)
-            sep(default_sep_icons.round.right, 'CloseBtnSep')
-            return result
-          end
-        },
-        mode = vim.g.mode,
-        numbers = "none", -- | "ordinal" | "buffer_id" | "both" | function({ ordinal, id, lower, raise }): string,
-        close_command = function(bufnr)
-          local buffers = vim.fn.getbufinfo({ buflisted = 1 })
-          if #buffers > 1 and is_last_buffer(bufnr) then
-            vim.cmd 'bprev'
-            vim.api.nvim_buf_delete(bufnr, { force = true })
-          else
-            if vim.bo.filetype ~= 'neo-tree' then
+          },
+          mode = vim.g.mode,
+          numbers = "none", -- | "ordinal" | "buffer_id" | "both" | function({ ordinal, id, lower, raise }): string,
+          close_command = function(bufnr)
+            local buffers = vim.fn.getbufinfo({ buflisted = 1 })
+            if #buffers > 1 and is_last_buffer(bufnr) then
+              vim.cmd 'bprev'
               vim.api.nvim_buf_delete(bufnr, { force = true })
+            else
+              if vim.bo.filetype ~= 'neo-tree' then
+                vim.api.nvim_buf_delete(bufnr, { force = true })
+              end
             end
-          end
-          -- redraw를 안할 경우 버퍼는 지워졌지만 UI상으로는 남아있게 된다.
-          vim.cmd("redrawtabline")
-        end,
-        right_mouse_command = "vertical sbuffer %d", -- can be a string | function, see "Mouse actions"
-        left_mouse_command = function(bufnr)
-          if vim.bo.filetype ~= 'neo-tree' then
-            vim.cmd("buffer " .. bufnr)
-          end
-        end,
-        hover = {
-          enable = true,
-          delay = 200,
-          reveal = { 'close' }
+            -- redraw를 안할 경우 버퍼는 지워졌지만 UI상으로는 남아있게 된다.
+            vim.cmd("redrawtabline")
+          end,
+          right_mouse_command = "vertical sbuffer %d", -- can be a string | function, see "Mouse actions"
+          left_mouse_command = function(bufnr)
+            if vim.bo.filetype ~= 'neo-tree' then
+              vim.cmd("buffer " .. bufnr)
+            end
+          end,
+          hover = {
+            enable = true,
+            delay = 200,
+            reveal = { 'close' }
+          },
+          middle_mouse_command = nil, -- can be a string | function, see "Mouse actions"
+          -- NOTE: this plugin is designed with this icon in mind,
+          -- and so changing this is NOT recommended, this is intended
+          -- as an escape hatch for people who cannot bear it for whatever reason
+          indicator_icon = nil,
+          indicator = { style = "none", icon = " " },
+          buffer_close_icon = '',
+          modified_icon = "●",
+          close_icon = "󰅖", --"",
+          close_tab_icon = "",
+          left_trunc_marker = "",
+          right_trunc_marker = "",
+          move_wraps_at_ends = true,
+          --- name_formatter can be used to change the buffer's label in the bufferline.
+          --- Please note some names can/will break the
+          --- bufferline so use this at your discretion knowing that it has
+          --- some limitations that will *NOT* be fixed.
+          -- name_formatter = function(buf)  -- buf contains a "name", "path" and "bufnr"
+          --   -- remove extension from markdown files for example
+          --   if buf.name:match('%.md') then
+          --     return vim.fn.fnamemodify(buf.name, ':t:r')
+          --   end
+          -- end,
+          max_name_length = 30,
+          max_prefix_length = 30, -- prefix used when a buffer is de-duplicated
+          tab_size = 21,
+          diagnostics = false,
+          diagnostics_update_in_insert = false,
+          -- diagnostics_indicator = function(count, level, diagnostics_dict, context)
+          --   return "("..count..")"
+          -- end,
+          -- NOTE: this will be called a lot so don't do any heavy processing here
+          -- custom_filter = function(buf_number)
+          --   -- filter out filetypes you don't want to see
+          --   if vim.bo[buf_number].filetype ~= "<i-dont-want-to-see-this>" then
+          --     return true
+          --   end
+          --   -- filter out by buffer name
+          --   if vim.fn.bufname(buf_number) ~= "<buffer-name-I-dont-want>" then
+          --     return true
+          --   end
+          --   -- filter out based on arbitrary rules
+          --   -- e.g. filter out vim wiki buffer from tabline in your work repo
+          --   if vim.fn.getcwd() == "<work-repo>" and vim.bo[buf_number].filetype ~= "wiki" then
+          --     return true
+          --   end
+          -- end,
+          offsets = { { filetype = "neo-tree", text = "File Explorer", padding = 1 } },
+          color_icons = true,
+          show_buffer_icons = true,
+          show_buffer_close_icons = true,
+          show_close_icon = false,
+          show_tab_indicators = false,
+          persist_buffer_sort = true, -- whether or not custom sorted buffers should persist
+          -- can also be a table containing 2 custom separators
+          -- [focused and unfocused]. eg: { '|', '|' }
+          -- 여기서부터
+          separator_style = { '|', '|' }, --[[ { '', '' }, ]] -- | "thick" | "thin" | { 'any', 'any' },
+          enforce_regular_tabs = false,
+          always_show_bufferline = true,
+          -- 여기까지
+          -- sort_by = 'id' | 'extension' | 'relative_directory' | 'directory' | 'tabs' | function(buffer_a, buffer_b)
+          --   -- add custom logic
+          --   return buffer_a.modified > buffer_b.modified
+          -- end
         },
-        middle_mouse_command = nil, -- can be a string | function, see "Mouse actions"
-        -- NOTE: this plugin is designed with this icon in mind,
-        -- and so changing this is NOT recommended, this is intended
-        -- as an escape hatch for people who cannot bear it for whatever reason
-        indicator_icon = nil,
-        indicator = { style = "none", icon = " " },
-        buffer_close_icon = '',
-        modified_icon = "●",
-        close_icon = "󰅖", --"",
-        close_tab_icon = "",
-        left_trunc_marker = "",
-        right_trunc_marker = "",
-        move_wraps_at_ends = true,
-        --- name_formatter can be used to change the buffer's label in the bufferline.
-        --- Please note some names can/will break the
-        --- bufferline so use this at your discretion knowing that it has
-        --- some limitations that will *NOT* be fixed.
-        -- name_formatter = function(buf)  -- buf contains a "name", "path" and "bufnr"
-        --   -- remove extension from markdown files for example
-        --   if buf.name:match('%.md') then
-        --     return vim.fn.fnamemodify(buf.name, ':t:r')
-        --   end
-        -- end,
-        max_name_length = 30,
-        max_prefix_length = 30, -- prefix used when a buffer is de-duplicated
-        tab_size = 21,
-        diagnostics = false,
-        diagnostics_update_in_insert = false,
-        -- diagnostics_indicator = function(count, level, diagnostics_dict, context)
-        --   return "("..count..")"
-        -- end,
-        -- NOTE: this will be called a lot so don't do any heavy processing here
-        -- custom_filter = function(buf_number)
-        --   -- filter out filetypes you don't want to see
-        --   if vim.bo[buf_number].filetype ~= "<i-dont-want-to-see-this>" then
-        --     return true
-        --   end
-        --   -- filter out by buffer name
-        --   if vim.fn.bufname(buf_number) ~= "<buffer-name-I-dont-want>" then
-        --     return true
-        --   end
-        --   -- filter out based on arbitrary rules
-        --   -- e.g. filter out vim wiki buffer from tabline in your work repo
-        --   if vim.fn.getcwd() == "<work-repo>" and vim.bo[buf_number].filetype ~= "wiki" then
-        --     return true
-        --   end
-        -- end,
-        offsets = { { filetype = "neo-tree", text = "File Explorer", padding = 1 } },
-        color_icons = true,
-        show_buffer_icons = true,
-        show_buffer_close_icons = true,
-        show_close_icon = false,
-        show_tab_indicators = false,
-        persist_buffer_sort = true, -- whether or not custom sorted buffers should persist
-        -- can also be a table containing 2 custom separators
-        -- [focused and unfocused]. eg: { '|', '|' }
-        -- 여기서부터
-        separator_style = { '|', '|' }, --[[ { '', '' }, ]] -- | "thick" | "thin" | { 'any', 'any' },
-        enforce_regular_tabs = false,
-        always_show_bufferline = true,
-        -- 여기까지
-        -- sort_by = 'id' | 'extension' | 'relative_directory' | 'directory' | 'tabs' | function(buffer_a, buffer_b)
-        --   -- add custom logic
-        --   return buffer_a.modified > buffer_b.modified
-        -- end
-      },
-      -- highlights = require("catppuccin.groups.integrations.bufferline").get()
-      highlights = {
-        background = {
-          fg = 'Gray',
-          bg = ''
+        -- highlights = require("catppuccin.groups.integrations.bufferline").get()
+        highlights = {
+          background = {
+            fg = 'Gray',
+            bg = ''
+          },
+          fill = {
+            fg = '',
+            bg = ''
+          },
+          close_button = {
+            fg = 'Gray',
+            bg = '',
+          },
+          close_button_visible = {
+            fg = 'LightGray',
+            bg = '',
+          },
+          close_button_selected = {
+            fg = 'red',
+            bg = '',
+          },
+          buffer_visible = {
+            fg = 'Gray',
+            bg = '',
+          },
+          buffer_selected = {
+            fg = 'White',
+            bg = '',
+            bold = true,
+            italic = false,
+          },
+          tab_separator = {
+            fg = 'blue',
+            bg = ''
+          },
+          separator_selected = {
+            fg = 'white',
+            bg = ''
+          },
+          separator_visible = {
+            fg = '',
+            bg = ''
+          },
+          separator = {
+            fg = 'gold',
+            bg = ''
+          },
+          indicator_visible = {
+            fg = '',
+            bg = ''
+          },
+          indicator_selected = {
+            fg = 'red',
+            bg = ''
+          },
         },
-        fill = {
-          fg = '',
-          bg = ''
-        },
-        close_button = {
-          fg = 'Gray',
-          bg = '',
-        },
-        close_button_visible = {
-          fg = 'LightGray',
-          bg = '',
-        },
-        close_button_selected = {
-          fg = 'red',
-          bg = '',
-        },
-        buffer_visible = {
-          fg = 'Gray',
-          bg = '',
-        },
-        buffer_selected = {
-          fg = 'White',
-          bg = '',
-          bold = true,
-          italic = false,
-        },
-        tab_separator = {
-          fg = 'blue',
-          bg = ''
-        },
-        separator_selected = {
-          fg = 'white',
-          bg = ''
-        },
-        separator_visible = {
-          fg = '',
-          bg = ''
-        },
-        separator = {
-          fg = 'gold',
-          bg = ''
-        },
-        indicator_visible = {
-          fg = '',
-          bg = ''
-        },
-        indicator_selected = {
-          fg = 'red',
-          bg = ''
-        },
-      },
-    }
-  },
-}
+      }
+      end,
+    },
+  }
